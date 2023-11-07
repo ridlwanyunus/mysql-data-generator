@@ -14,6 +14,10 @@ public class InformationService {
 	@Autowired
 	private InformationRepository repo;
 	
+	public Information findBySerialNumber(String serialNumber){
+		return repo.findBySerialNumber(serialNumber);
+	}
+	
 	public List<Information> findAll(){
 		return repo.findAll();
 	}

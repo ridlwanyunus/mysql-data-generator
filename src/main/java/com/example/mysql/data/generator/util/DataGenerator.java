@@ -30,8 +30,10 @@ public class DataGenerator {
 		
 		long number = count / batch;
 		long sisa = count % batch;
+		long total = number;
 		
-		long total = number + 1;
+		if(sisa > 0)
+			total = number + 1;
 		
 		System.out.println(String.format("Start processing %s records at %s", count, stamp()));
 		
@@ -57,9 +59,9 @@ public class DataGenerator {
 			System.out.println(String.format("Saving %s records at %s ..... %d/%d ", batch, stamp(), (i+1), total));
 		}
 		
-		for(int i=0; i<1; i++) {
+		if(sisa > 0) {
 			List<Information> informations = new ArrayList<Information>();
-			for(int j=0; j<sisa; j++) {
+			for(int i=0; i<sisa; i++) {
 				
 				UUID id = UUID.randomUUID();
 				String npwp = generateNpwp();
@@ -84,8 +86,8 @@ public class DataGenerator {
 		Long millis = end.getTime() - start.getTime();
 		
 		Long minute = TimeUnit.MILLISECONDS.toMinutes(millis);
-		Long second = TimeUnit.MILLISECONDS.toSeconds(millis);
-		System.out.println(String.format("%d minute %d second", minute, second));
+		Long second = TimeUnit.MILLISECONDS.toSeconds(millis) % 60;
+		System.out.println(String.format("%d minutes %d seconds", minute, second));
 		
 		System.out.println(String.format("Finish processing %s records at %s", count, stamp()));
 		
