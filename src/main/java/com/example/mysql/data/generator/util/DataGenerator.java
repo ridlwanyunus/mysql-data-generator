@@ -1,5 +1,6 @@
 package com.example.mysql.data.generator.util;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.example.mysql.data.generator.model.Information;
@@ -18,36 +20,73 @@ public class DataGenerator {
 	@Autowired
 	private InformationService infoService;
 	
+	@Value("${app.config.batch}")
+	private Integer batch;
+	
 	
 	public void generateData(Long count) {
 		Date start = new Date();
-		List<Information> informations = new ArrayList<Information>();
 		
-		for(int i=0; i<count; i++) {
-			
-			UUID id = UUID.randomUUID();
-			String npwp = generateNpwp();
-			String serialNumber = generateSn();
-			String certificate = generateCertificate();
-			
-			
-			Information info = new Information();
-			info.setId(id.toString());
-			info.setNpwp(npwp.toString().substring(0, 15));
-			info.setSerialNumber(serialNumber.toString().substring(0, 22));
-			info.setCertificate(certificate);
-			info.setCreationDate(new Date());
-			informations.add(info);
+		
+		long number = count / batch;
+		long sisa = count % batch;
+		
+		long total = number + 1;
+		
+		System.out.println(String.format("Start processing %s records at %s", count, stamp()));
+		
+		for(int i=0; i<number; i++) {
+			List<Information> informations = new ArrayList<Information>();
+			for(int j=0; j<batch; j++) {
+				
+				UUID id = UUID.randomUUID();
+				String npwp = generateNpwp();
+				String serialNumber = generateSn();
+				String certificate = generateCertificate();
+				
+				
+				Information info = new Information();
+				info.setId(id.toString());
+				info.setNpwp(npwp.toString().substring(0, 15));
+				info.setSerialNumber(serialNumber.toString().substring(0, 22));
+				info.setCertificate(certificate);
+				info.setCreationDate(new Date());
+				informations.add(info);
+			}
+			infoService.saveAll(informations);
+			System.out.println(String.format("Saving %s records at %s ..... %d/%d ", batch, stamp(), (i+1), total));
 		}
 		
-		infoService.saveAll(informations);
-		
+		for(int i=0; i<sisa; i++) {
+			List<Information> informations = new ArrayList<Information>();
+			for(int j=0; j<batch; j++) {
+				
+				UUID id = UUID.randomUUID();
+				String npwp = generateNpwp();
+				String serialNumber = generateSn();
+				String certificate = generateCertificate();
+				
+				
+				Information info = new Information();
+				info.setId(id.toString());
+				info.setNpwp(npwp.toString().substring(0, 15));
+				info.setSerialNumber(serialNumber.toString().substring(0, 22));
+				info.setCertificate(certificate);
+				info.setCreationDate(new Date());
+				informations.add(info);
+			}
+			infoService.saveAll(informations);
+			
+		}
+		System.out.println(String.format("Saving %s records at %s ..... %d/%d ", sisa, stamp(), total, total));
 		Date end = new Date();
 		Long millis = end.getTime() - start.getTime();
 		
 		Long minute = TimeUnit.MILLISECONDS.toMinutes(millis);
 		Long second = TimeUnit.MILLISECONDS.toSeconds(millis);
-		System.out.println(String.format("%02d minute %02d second", minute, second));
+		System.out.println(String.format("%d minute %d second", minute, second));
+		
+		System.out.println(String.format("Finish processing %s records at %s", count, stamp()));
 		
 	}
 	
@@ -114,5 +153,14 @@ public class DataGenerator {
 				+ "NYVgdD2ztN9jbtdGEQKDZ3LOUyIBjOOY34EWHSVorMPei3U0HzO00cmh6u2kl9DM\r\n"
 				+ "IcaSWrQ0LewiVr3/t23hFyibnp7uMLnRz6Jol/1/fTZKRg==";
 		return certificate;
+	}
+	
+	private String stamp() {
+		String time = "";
+		Date now = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+		time = sdf.format(now);
+		return time;
+		
 	}
 }
