@@ -57,9 +57,9 @@ public class DataGenerator {
 			System.out.println(String.format("Saving %s records at %s ..... %d/%d ", batch, stamp(), (i+1), total));
 		}
 		
-		for(int i=0; i<sisa; i++) {
+		for(int i=0; i<1; i++) {
 			List<Information> informations = new ArrayList<Information>();
-			for(int j=0; j<batch; j++) {
+			for(int j=0; j<sisa; j++) {
 				
 				UUID id = UUID.randomUUID();
 				String npwp = generateNpwp();
@@ -76,9 +76,10 @@ public class DataGenerator {
 				informations.add(info);
 			}
 			infoService.saveAll(informations);
+			System.out.println(String.format("Saving %s records at %s ..... %d/%d ", sisa, stamp(), total, total));
 			
 		}
-		System.out.println(String.format("Saving %s records at %s ..... %d/%d ", sisa, stamp(), total, total));
+		
 		Date end = new Date();
 		Long millis = end.getTime() - start.getTime();
 		
